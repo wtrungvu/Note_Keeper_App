@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:note_keeper_app/screen/note_detail.dart';
 
 class NoteList extends StatelessWidget {
   @override
@@ -13,6 +14,7 @@ class NoteList extends StatelessWidget {
             backgroundColor: Colors.blue,
             onPressed: () {
               debugPrint("FAB Clicked!");
+              navigateToDetail(context, "Add Note");
             }),
         body: NoteListWidget());
   }
@@ -53,9 +55,16 @@ class _NoteListWidgetState extends State<NoteListWidget> {
               ),
               onTap: () {
                 debugPrint("ListTile Tapped!");
+                navigateToDetail(context, "Edit Note");
               },
             ),
           );
         });
   }
+}
+
+void navigateToDetail(BuildContext context, String appBarTitle) {
+  Navigator.push(context, MaterialPageRoute(builder: (context) {
+    return NoteDetail(appBarTitle);
+  }));
 }
