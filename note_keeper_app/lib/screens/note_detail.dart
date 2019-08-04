@@ -27,6 +27,8 @@ class _NoteDetailState extends State<NoteDetail> {
 
   _NoteDetailState(this.note, this.appBarTitle);
 
+  var _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
@@ -49,107 +51,123 @@ class _NoteDetailState extends State<NoteDetail> {
         ),
         body: Container(
           margin: const EdgeInsets.all(20.0),
-          child: ListView(
-            children: <Widget>[
-              // =========== First Element ===========
-              ListTile(
-                title: DropdownButton(
-                    items: _priorities.map((String dropDownStringItem) {
-                      return DropdownMenuItem<String>(
-                        value: dropDownStringItem,
-                        child: Text(dropDownStringItem),
-                      );
-                    }).toList(),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: <Widget>[
+                // =========== First Element ===========
+                ListTile(
+                  title: DropdownButton(
+                      items: _priorities.map((String dropDownStringItem) {
+                        return DropdownMenuItem<String>(
+                          value: dropDownStringItem,
+                          child: Text(dropDownStringItem),
+                        );
+                      }).toList(),
+                      style: textStyle,
+                      value: getPriorityAsString(note.priority),
+                      onChanged: (valueSelectedByUser) {
+                        setState(() {
+                          debugPrint("User selected $valueSelectedByUser");
+                          updatePriorityAsInt(valueSelectedByUser);
+                        });
+                      }),
+                ),
+                // =========== Second Element ===========
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: TextFormField(
+                    controller: titleController,
                     style: textStyle,
-                    value: getPriorityAsString(note.priority),
-                    onChanged: (valueSelectedByUser) {
-                      setState(() {
-                        debugPrint("User selected $valueSelectedByUser");
-                        updatePriorityAsInt(valueSelectedByUser);
-                      });
-                    }),
-              ),
-              // =========== Second Element ===========
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: TextField(
-                  controller: titleController,
-                  style: textStyle,
-                  onChanged: (value) {
-                    debugPrint("Something changed in Title TextField");
-                    updateTitle();
-                  },
-                  decoration: InputDecoration(
-                      labelText: "Title",
-                      labelStyle: textStyle,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0))),
+                    // onSaved: (value) {},
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "Title is not Emty!";
+                      } else {
+                        debugPrint("Something changed in Title TextFormField");
+                        updateTitle();
+                      }
+                    },
+                    decoration: InputDecoration(
+                        labelText: "Title",
+                        labelStyle: textStyle,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0))),
+                  ),
                 ),
-              ),
-              // =========== Third Element ===========
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: TextField(
-                  controller: descriptionController,
-                  keyboardType: TextInputType.multiline,
-                  style: textStyle,
-                  onChanged: (value) {
-                    debugPrint("Something changed in Description TextField");
-                    updateDescription();
-                  },
-                  decoration: InputDecoration(
-                      labelText: "Description",
-                      labelStyle: textStyle,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0))),
+                // =========== Third Element ===========
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: TextFormField(
+                    controller: descriptionController,
+                    keyboardType: TextInputType.multiline,
+                    style: textStyle,
+                    // onSaved: (value) {},
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "Description is not Emty!";
+                      } else {
+                        debugPrint(
+                            "Something changed in Description TextFormField");
+                        updateDescription();
+                      }
+                    },
+                    decoration: InputDecoration(
+                        labelText: "Description",
+                        labelStyle: textStyle,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0))),
+                  ),
                 ),
-              ),
-              // =========== Four Element ===========
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: RaisedButton(
-                            color: Colors.blue,
-                            textColor: Colors.white,
-                            child: Text(
-                              "Save",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                debugPrint("Save button clicked");
-                                _save();
-                              });
-                            })),
-                    Container(
-                      width: 10.0,
-                    ),
-                    Expanded(
-                        child: RaisedButton(
-                            color: Colors.red,
-                            textColor: Colors.white,
-                            child: Text(
-                              "Delete",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                debugPrint("Delete button clicked");
-                                _delete();
-                              });
-                            })),
-                  ],
-                ),
-              )
-            ],
+                // =========== Four Element ===========
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                          child: RaisedButton(
+                              color: Colors.blue,
+                              textColor: Colors.white,
+                              child: Text(
+                                "Save",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  if (_formKey.currentState.validate()) {
+                                    debugPrint("Save button clicked");
+                                    _save();
+                                  }
+                                });
+                              })),
+                      Container(
+                        width: 10.0,
+                      ),
+                      Expanded(
+                          child: RaisedButton(
+                              color: Colors.red,
+                              textColor: Colors.white,
+                              child: Text(
+                                "Delete",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  debugPrint("Delete button clicked");
+                                  _delete();
+                                });
+                              })),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
